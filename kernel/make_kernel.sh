@@ -12,14 +12,46 @@ config_fixups() {
     local lpath=$1
 
     # enable rockchip sfc
-    echo 'CONFIG_SPI_ROCKCHIP_SFC=m' >> "$lpath/arch/arm64/configs/defconfig"
+    #echo 'CONFIG_SPI_ROCKCHIP_SFC=m' >> "$lpath/arch/arm64/configs/defconfig"
+
+    # Avoid duplicated entries in case of multiple invocations of make_kernel.sh
+    "./$lpath/scripts/config" --file "$lpath/arch/arm64/configs/defconfig" --module CONFIG_MEMCG_SWAP
 
     #echo 6 > "$lpath/.version"
 }
 
+config_features_after() {
+    local lpath=$1
+
+    # Look for all files in features-enabled folder
+    # These files will need to act on .config directly since this function is called AFTER `make defconfig`
+    for f in features-enabled/*.sh
+    do
+       echo "Processing <$f> feature ..."
+       ./$f "$lpath" ".config"
+    done
+}
+
+config_features_before() {
+    local lpath=$1
+
+    # Look for all files in features-enabled folder
+    # These files will need to act on defconfig directly since this function is called BEFORE `make defconfig`
+    for f in features-enabled/*.sh
+    do
+       echo "Processing <$f> feature ..."
+       ./$f "$lpath" "arch/arm64/configs/defconfig"
+    done
+}
+
 main() {
-    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.5.5.tar.xz'
-    local lxsha='8cf10379f7df8ea731e09bff3d0827414e4b643dd41dc99d0af339669646ef95'
+    # Mainline Branch 6.6.x Series
+    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.tar.xz'
+    local lxsha='d926a06c63dd8ac7df3f86ee1ffc2ce2a3b81a2d168484e76b5b389aba8e56d0'
+
+    # Stable Branch 6.5.x Series
+    #local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.5.9.tar.xz'
+    #local lxsha='c6662f64713f56bf30e009c32eac15536fad5fd1c02e8a3daf62a0dc2f058fd5'
 
     local lf="$(basename "$linux")"
     local lv="$(echo "$lf" | sed -nE 's/linux-(.*)\.tar\..z/\1/p')"
@@ -63,8 +95,15 @@ main() {
         echo "\n${h1}configuring source tree...${rst}"
         make -C "kernel-$lv/linux-$lv" mrproper
         [ -z "$1" ] || echo "$1" > "kernel-$lv/linux-$lv/.version"
+
+	# First required fixes to defconfig
         config_fixups "kernel-$lv/linux-$lv"
+
+	# Then Generate Default Configuration
         make -C "kernel-$lv/linux-$lv" ARCH=arm64 defconfig
+
+	# Then load (optional) features overriding kernel defaults "a posteriori"
+        config_features_after "kernel-$lv/linux-$lv" ".config"
     fi
 
     echo "\n${h1}beginning compile...${rst}"
@@ -78,7 +117,8 @@ main() {
     export KBUILD_BUILD_USER='linux-kernel'
     export KBUILD_BUILD_VERSION="$bv"
 
-    nice make -C "kernel-$lv/linux-$lv" -j"$(nproc)" CC='gcc-13' bindeb-pkg KBUILD_IMAGE='arch/arm64/boot/Image' LOCALVERSION="-$bv-arm64"
+    # Use "gcc" since "gcc-13" might not be available on some systems
+    nice make -C "kernel-$lv/linux-$lv" -j"$(nproc)" CC='gcc' bindeb-pkg KBUILD_IMAGE='arch/arm64/boot/Image' LOCALVERSION="-$bv-arm64"
     echo "\n${cya}kernel package ready${mag}"
     ln -sfv "kernel-$lv/linux-image-$kv-$bv-arm64_$kv-${bv}_arm64.deb"
     echo "${rst}"
