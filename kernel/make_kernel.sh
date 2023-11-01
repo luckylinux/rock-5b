@@ -86,7 +86,7 @@ main() {
         tar -C "kernel-$lv" -xavf "kernel-$lv/$lf"
 
 	# Copy defconfig to defconfig.default, so that we don't always re-add entries in case of multiple make_kernel.sh invocations
-	cp "kernel-$lv/$lv/arch/arm64/configs/defconfig" "kernel-$lv/$lv/arch/arm64/configs/defconfig.default"
+	cp "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig" "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig.default"
 
         for patch in patches/*.patch; do
             patch -p1 -d "kernel-$lv/linux-$lv" -i "../../$patch"
@@ -100,7 +100,7 @@ main() {
         [ -z "$1" ] || echo "$1" > "kernel-$lv/linux-$lv/.version"
 
 	# First of all restore default (as it shipped with kernel archive) defconfig
-	cp "kernel-$lv/$lv/arch/arm64/configs/defconfig.default" "kernel-$lv/$lv/arch/arm64/configs/defconfig"
+	cp "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig.default" "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig"
 
 	# Then apply required fixes to defconfig
         config_fixups "kernel-$lv/linux-$lv"
