@@ -15,7 +15,7 @@ config_fixups() {
     #echo 'CONFIG_SPI_ROCKCHIP_SFC=m' >> "$lpath/arch/arm64/configs/defconfig"
 
     # Avoid duplicated entries in case of multiple invocations of make_kernel.sh
-    "./$lpath/scripts/config" --file "$lpath/arch/arm64/configs/defconfig" --module CONFIG_MEMCG_SWAP
+    "./$lpath/scripts/config" --file "$lpath/arch/arm64/configs/defconfig" --module CONFIG_SPI_ROCKCHIP_SFC
 
     #echo 6 > "$lpath/.version"
 }
@@ -46,12 +46,12 @@ config_features_before() {
 
 main() {
     # Mainline Branch 6.6.x Series
-    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.tar.xz'
-    local lxsha='d926a06c63dd8ac7df3f86ee1ffc2ce2a3b81a2d168484e76b5b389aba8e56d0'
+    #local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.tar.xz'
+    #local lxsha='d926a06c63dd8ac7df3f86ee1ffc2ce2a3b81a2d168484e76b5b389aba8e56d0'
 
     # Stable Branch 6.5.x Series
-    #local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.5.9.tar.xz'
-    #local lxsha='c6662f64713f56bf30e009c32eac15536fad5fd1c02e8a3daf62a0dc2f058fd5'
+    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.5.9.tar.xz'
+    local lxsha='c6662f64713f56bf30e009c32eac15536fad5fd1c02e8a3daf62a0dc2f058fd5'
 
     local lf="$(basename "$linux")"
     local lv="$(echo "$lf" | sed -nE 's/linux-(.*)\.tar\..z/\1/p')"
@@ -85,6 +85,9 @@ main() {
     if [ ! -d "kernel-$lv/linux-$lv" ]; then
         tar -C "kernel-$lv" -xavf "kernel-$lv/$lf"
 
+	# Copy defconfig to defconfig.default, so that we don't always re-add entries in case of multiple make_kernel.sh invocations
+	cp "kernel-$lv/$lf/arch/arm64/configs/defconfig" "kernel-$lv/$lf/arch/arm64/configs/defconfig.default"
+
         for patch in patches/*.patch; do
             patch -p1 -d "kernel-$lv/linux-$lv" -i "../../$patch"
         done
@@ -96,7 +99,10 @@ main() {
         make -C "kernel-$lv/linux-$lv" mrproper
         [ -z "$1" ] || echo "$1" > "kernel-$lv/linux-$lv/.version"
 
-	# First required fixes to defconfig
+	# First of all restore default (as it shipped with kernel archive) defconfig
+	cp "kernel-$lv/$lf/arch/arm64/configs/defconfig.default" "kernel-$lv/$lf/arch/arm64/configs/defconfig"
+
+	# Then apply required fixes to defconfig
         config_fixups "kernel-$lv/linux-$lv"
 
 	# Then Generate Default Configuration
