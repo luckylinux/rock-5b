@@ -3,6 +3,11 @@
 
 Refer to https://github.com/inindev/rock-5b and its tutorial.
 
+### Prevent Libc-dev from automatically upgrading
+```
+sudo apt-mark hold linux-libc-dev
+```
+
 ### *Get ZFS working*
 Install Requirements
 ```
@@ -14,7 +19,6 @@ sudo apt install build-essential autoconf automake libtool gawk fakeroot libblki
 
 Build ZFS Utils & Module
 ```
-#!/bin/bash
 # Define Desired Version
 version="2.2.1"
 
@@ -50,7 +54,7 @@ mv ../../openzfs-libzfs4_$version*.deb ./
 mv ../../openzfs-libzpool5_$version*.deb ./
 mv ../../openzfs-zfs-dkms_$version*.deb ./
 mv ../../openzfs-zfs-initramfs_$version*.deb ./
-mv ../../openzfs-zfs-modules-*_$version*.deb ./
+#mv ../../openzfs-zfs-modules-*_$version*.deb ./
 mv ../../openzfs-zfs-zed_$version*.deb ./
 mv ../../openzfs-zfsutils_$version*.deb ./
 
