@@ -6,7 +6,8 @@ Refer to https://github.com/inindev/rock-5b and its tutorial.
 ### *Get ZFS working*
 Install Requirements
 ```
-sudo apt install build-essential autoconf automake libtool libblkid-dev uuid-dev libudev-dev libssl-dev zlib1g-dev libaio-dev libattr1-dev libelf-dev python3 python3-dev python3-setuptools python3-cffi libffi-dev python3-packaging git libcurl4-openssl-dev debhelper-compat dh-python po-debconf python3-all-dev python3-sphinx
+sudo apt install aptitude libcurl4-openssl-dev libpam0g-dev lsb-release build-essential autoconf automake libtool libblkid-dev uuid-dev libudev-dev libssl-dev zlib1g-dev libaio-dev libattr1-dev libelf-dev python3 python3-dev python3-setuptools python3-cffi libffi-dev python3-packaging git libcurl4-openssl-dev debhelper-compat dh-python po-debconf python3-all-dev python3-sphinx
+sudo apt --no-install-recommends install dkms
 
 ```
 
@@ -17,7 +18,7 @@ version="2.2.1"
 cd /usr/src
 mkdir -p zfs
 cd zfs
-wget https://github.com/openzfs/zfs/releases/download/zfs-$version/zfs-$version.tar.gz
+wget https://github.com/openzfs/zfs/releases/download/zfs-$version/zfs-$version.tar.gz -O zfs-$version.tar.gz
 tar xvf zfs-$version.tar.gz
 cd zfs-$version
 
@@ -27,7 +28,9 @@ patch -p1 < aarch64-disable-neon.patch
 
 sh autogen.sh
 ./configure
-make native-deb-utils
+make -s -j$(nproc)
+make native-deb
+make native-deb-utils native-deb-dkms
 
 # Select Subset of Packages to prevent installation of default linux-image and linux-headers
 cd ..
