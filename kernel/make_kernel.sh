@@ -45,13 +45,21 @@ config_features_before() {
 }
 
 main() {
+    # Mainline Branch 6.6.2
+    #local linux='https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x/linux-6.6.2.tar.xz'
+    #local lxsha='73d4f6ad8dd6ac2a41ed52c2928898b7c3f2519ed5dbdb11920209a36999b77e'
+
+    # Mainline Branch 6.6.1
+    local linux='https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x/linux-6.6.1.tar.xz'
+    local lxsha='da1ed7d47c97ed72c9354091628740aa3c40a3c9cd7382871f3cedbd60588234'
+
     # Mainline Branch 6.6.x Series
     #local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.tar.xz'
     #local lxsha='d926a06c63dd8ac7df3f86ee1ffc2ce2a3b81a2d168484e76b5b389aba8e56d0'
 
     # Stable Branch 6.5.x Series
-    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.5.9.tar.xz'
-    local lxsha='c6662f64713f56bf30e009c32eac15536fad5fd1c02e8a3daf62a0dc2f058fd5'
+    #local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.5.9.tar.xz'
+    #local lxsha='c6662f64713f56bf30e009c32eac15536fad5fd1c02e8a3daf62a0dc2f058fd5'
 
     local lf="$(basename "$linux")"
     local lv="$(echo "$lf" | sed -nE 's/linux-(.*)\.tar\..z/\1/p')"
@@ -103,13 +111,19 @@ main() {
 	cp "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig.default" "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig"
 
 	# Then apply required fixes to defconfig
-        config_fixups "kernel-$lv/linux-$lv"
+        #config_fixups "kernel-$lv/linux-$lv"
 
 	# Then Generate Default Configuration
-        make -C "kernel-$lv/linux-$lv" ARCH=arm64 defconfig
+	#make -C "kernel-$lv/linux-$lv" ARCH=arm64 defconfig
+
+	# Use custom defconfig
+	#wget https://gitlab.com/-/snippets/3622915/raw/main/docker_defconfig -O "kernel-$lv/linux-$lv/.config"
+        cp "config-available/kernel-6.6.1-1" "kernel-$lv/linux-$lv/.config"
+        "./kernel-$lv/linux-$lv/scripts/config" --file "kernel-$lv/linux-$lv/.config" --module CONFIG_SPI_ROCKCHIP_SFC
+	#make -C "kernel-$lv/linux-$lv" ARCH=arm64 olddefconfig
 
 	# Then load (optional) features overriding kernel defaults "a posteriori"
-        config_features_after "kernel-$lv/linux-$lv" ".config"
+        #config_features_after "kernel-$lv/linux-$lv" ".config"
     fi
 
     echo "\n${h1}beginning compile...${rst}"
