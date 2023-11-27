@@ -110,16 +110,23 @@ main() {
 	# First of all restore default (as it shipped with kernel archive) defconfig
 	cp "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig.default" "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig"
 
+	# Start with custom config file
+        cp "config-available/kernel-6.6.1-1" "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig"
+        #"./kernel-$lv/linux-$lv/scripts/config" --file "kernel-$lv/linux-$lv/arch/arm64/configs/defconfig" --module CONFIG_SPI_ROCKCHIP_SFC
+
 	# Then apply required fixes to defconfig
-        #config_fixups "kernel-$lv/linux-$lv"
+        config_fixups "kernel-$lv/linux-$lv" "arch/arm64/configs/defconfig"
+
+	# Then load (optional) features overriding kernel defaults "a priori"
+        config_features_before "kernel-$lv/linux-$lv" "arch/arm64/configs/defconfig"
 
 	# Then Generate Default Configuration
-	#make -C "kernel-$lv/linux-$lv" ARCH=arm64 defconfig
+	make -C "kernel-$lv/linux-$lv" ARCH=arm64 defconfig
 
 	# Use custom defconfig
 	#wget https://gitlab.com/-/snippets/3622915/raw/main/docker_defconfig -O "kernel-$lv/linux-$lv/.config"
-        cp "config-available/kernel-6.6.1-1" "kernel-$lv/linux-$lv/.config"
-        "./kernel-$lv/linux-$lv/scripts/config" --file "kernel-$lv/linux-$lv/.config" --module CONFIG_SPI_ROCKCHIP_SFC
+        #cp "config-available/kernel-6.6.1-1" "kernel-$lv/linux-$lv/.config"
+        #"./kernel-$lv/linux-$lv/scripts/config" --file "kernel-$lv/linux-$lv/.config" --module CONFIG_SPI_ROCKCHIP_SFC
 	#make -C "kernel-$lv/linux-$lv" ARCH=arm64 olddefconfig
 
 	# Then load (optional) features overriding kernel defaults "a posteriori"
