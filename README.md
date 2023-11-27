@@ -14,20 +14,25 @@ sudo apt install build-essential autoconf automake libtool gawk fakeroot libblki
 
 Build ZFS Utils & Module
 ```
+#!/bin/bash
+# Define Desired Version
 version="2.2.1"
 
 cd /usr/src
 mkdir -p zfs
 cd zfs
-wget https://github.com/openzfs/zfs/releases/download/zfs-$version/zfs-$version.tar.gz -O zfs-$version.tar.gz
-tar xvf zfs-$version.tar.gz
+wget https://github.com/openzfs/zfs/archive/refs/tags/zfs-$version.tar.gz -O zfs-$version.tar.gz
+#wget https://github.com/openzfs/zfs/releases/download/zfs-$version/zfs-$version.tar.gz -O zfs-$version.tar.gz
+mkdir -p zfs-$version
+#tar xvf zfs-$version.tar.gz
+tar xvf zfs-$version.tar.gz -C zfs-$version --strip-components 1
 cd zfs-$version
 
 # Apply Patch in order to disable SIMD and Enable successfully ZFS Compile
 wget https://raw.githubusercontent.com/chimera-linux/cports/master/main/zfs/patches/aarch64-disable-neon.patch -O aarch64-disable-neon.patch
 patch -p1 < aarch64-disable-neon.patch
 
-#sh autogen.sh
+sh autogen.sh
 ./configure
 make -s -j$(nproc)
 make native-deb
