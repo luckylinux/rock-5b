@@ -27,19 +27,19 @@ sudo apt install aptitude libcurl4-openssl-dev libpam0g-dev lsb-release build-es
 sudo apt install build-essential autoconf automake libtool gawk fakeroot libblkid-dev uuid-dev libudev-dev libssl-dev zlib1g-dev libaio-dev libattr1-dev libelf-dev python3 python3-dev python3-setuptools python3-cffi libffi-dev python3-packaging git libcurl4-openssl-dev debhelper-compat dh-python po-debconf python3-a>
 
 # Define Desired Version
-version="2.2.1"
+version="2.2.2"
 
 cd /usr/src
 mkdir -p zfs
 cd zfs
 
 # Use git and clone zfs-$version tag
-git clone https://github.com/openzfs/zfs.git --depth 1 --tag zfs-$version
+#git clone https://github.com/openzfs/zfs.git --depth 1 --tag zfs-$version
 
 # Use tar (working)
-#wget https://github.com/openzfs/zfs/archive/refs/tags/zfs-$version.tar.gz -O zfs-$version.tar.gz
-#mkdir -p zfs-$version
-#tar xvf zfs-$version.tar.gz -C zfs-$version --strip-components 1
+wget https://github.com/openzfs/zfs/archive/refs/tags/zfs-$version.tar.gz -O zfs-$version.tar.gz
+mkdir -p zfs-$version
+tar xvf zfs-$version.tar.gz -C zfs-$version --strip-components 1
 #
 # Use tar (currently broken archive)
 #wget https://github.com/openzfs/zfs/releases/download/zfs-$version/zfs-$version.tar.gz -O zfs-$version.tar.gz
