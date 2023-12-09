@@ -45,9 +45,17 @@ config_features_before() {
 }
 
 main() {
+    # Mainline Branch 6.6.5
+    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.5.tar.xz'
+    local lxsha='7c92795854a68d218c576097d50611f8eea86fd55810e0bc27724f020753b19e'
+
+    # Mainline Branch 6.6.4
+    #local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.4.tar.xz'
+    #local lxsha='49e49660c93d8d6d58f118360d3ca8131695ec34669263ca8f041c876da93e45'
+
     # Mainline Branch 6.6.3
-    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.3.tar.xz'
-    local lxsha='28edfc3d4f90cd738f2a20f5a2d68510268176d6111f6278d8f495edfd9495a7'
+    #local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.3.tar.xz'
+    #local lxsha='28edfc3d4f90cd738f2a20f5a2d68510268176d6111f6278d8f495edfd9495a7'
 
     # Mainline Branch 6.6.2
     #local linux='https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x/linux-6.6.2.tar.xz'
